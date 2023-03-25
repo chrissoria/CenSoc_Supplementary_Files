@@ -1,0 +1,147 @@
+---
+title: "Merge with Zip"
+author: "Christopher Soria"
+date: "2023-02-14"
+output:
+  pdf_document: default
+  html_document: default
+---
+
+To create this file, we will need to read in a truncated version of the BUNMD and ZIP code of death variables files along withplace of birth variables that were created using Seth Sanders' Crosswalk.
+
+To construct the “place of birth” variables, we used a crosswalk originally developed for this paper: 
+
+Black, Dan A., Seth G. Sanders, Evan J. Taylor, and Lowell J. Taylor. 2015. “The Impact of the Great Migration on Mortality of African Americans: Evidence from the Deep South.” American Economic Review 105(2):477–503. doi: 10.1257/aer.20120642.
+
+```{r}
+library(tidyverse)
+library(data.table)
+library(dplyr)
+```
+
+Here, I read in the data and select only for the variables of interest.
+```{r}
+Zip_Features <- read.csv("Zip_Features.csv", colClasses = c(zip = "character",FIPS = "character")) 
+
+Zip_Features <- subset(Zip_Features, select=-c(RUC1974, area_name, conterminous, acceptable_cities,district_name,RUC1983,timezone,area_codes,OASDI_benefits_2005,OASDI_total_2005,type,elevation,state,delv_address,OASDI_average_2005,OASDI_disabled_2005,OASDI_benefits_2005,OASDI_retired_2005,geocode))
+
+birthplaces_df <- fread("bunmd_Birthplace.csv", select=c("ssn","bpl_city","feature_id","county_name","Region"))
+
+bunmd_trunc <- fread("bunmd_v2.csv", select=c("ssn", "zip_residence"))
+```
+Next, I rename the ZIP code death place varirables so that it'll be clear that these refer to places of death in the final file.
+```{r}
+Zip_Features <- Zip_Features %>% 
+  rename(
+    death_fips = names(Zip_Features)[1],
+    death_zip = names(Zip_Features)[2],
+    death_state = names(Zip_Features)[3],
+    death_city = names(Zip_Features)[4],
+    death_county = names(Zip_Features)[5],
+    death_country = names(Zip_Features)[6],
+    death_region = names(Zip_Features)[7],
+    death_ruc1993 = names(Zip_Features)[8]
+  )
+head(Zip_Features)
+```
+I truncate the BUNMD zip_residence variable so that it only has 5 digits. This is an important step since the places of death file only contains 5 digit ZIP codes, and gives us a variable that we can match on. 
+```{r}
+bunmd_trunc <- bunmd_trunc %>% 
+  mutate(
+    zip = str_trunc(as.character(zip_residence), width = 5, side = "right", ellipsis = "")
+  ) %>% 
+  select(-2) %>% 
+  rename(death_zip = names(.)[2])
+
+head(bunmd_trunc)
+```
+Once we have the matching ZIP code variables, we merge the information from the ZIP code file to the BUNMD file. This results in a new file that contains a person's SSN, ZIP code of death, and additional information sourced from the ZIP code file, such as the corresponding city, county, and state.
+```{r}
+bunmd_trunc <- merge(bunmd_trunc, Zip_Features, by = "death_zip", all.x = TRUE,sort = FALSE)
+rm(Zip_Features)
+head(bunmd_trunc)
+```
+Next, we rename birth place variables.
+```{r}
+birthplaces_df <- birthplaces_df %>% 
+  rename(
+    birth_city = names(birthplaces_df)[2],
+    birth_gnis_code = names(birthplaces_df)[3],
+    birth_county = names(birthplaces_df)[4],
+    birth_region = names(birthplaces_df)[5])
+```
+Next, we merge birth place variables to the BUNMD file. These variables include the city, county, and state where the person was born. Now, we have a new file that contains information on people's death and birthplaces, in addition to their SSN.
+```{r}
+birthplaces_df <- merge(bunmd_trunc, birthplaces_df, by = "ssn", all.x = TRUE,sort = FALSE)
+rm(bunmd_trunc)
+head(birthplaces_df)
+```
+In the chunks of code below, we standardize the data set and make everything lowercase. We also make sure that any differences in wording are standardized. 
+```{r}
+birthplaces_df$birth_city <- tolower(birthplaces_df$birth_city)
+birthplaces_df$birth_county <- tolower(birthplaces_df$birth_county)
+birthplaces_df$birth_region <- tolower(birthplaces_df$birth_region)
+birthplaces_df$death_state <- tolower(birthplaces_df$death_state)
+birthplaces_df$death_city <- tolower(birthplaces_df$death_city)
+birthplaces_df$death_county <- tolower(birthplaces_df$death_county)
+head(birthplaces_df)
+```
+```{r}
+birthplaces_df <- birthplaces_df %>% 
+  mutate(
+    death_region = ifelse(death_region == "North_East", "northeast", death_region)
+  )
+birthplaces_df$death_region <- tolower(birthplaces_df$death_region)
+table(birthplaces_df$death_region)
+```
+```{r}
+birthplaces_df <- birthplaces_df %>% 
+  mutate(
+    death_county = str_remove_all(death_county, "county"),
+    death_county = str_trim(death_county)
+  )
+head(birthplaces_df$death_county, 10) #we remove the word "county" 
+```
+```{r}
+birthplaces_df$death_state <- gsub("\\b\\s+", "", birthplaces_df$death_state)
+
+birthplaces_df <- birthplaces_df %>% 
+  mutate(
+    death_state = case_when(
+      death_state == "" ~ NA_character_,
+      death_state == "arizona14/       " ~ "arizona",
+      death_state == "newhampshire" ~ "new hampshire",
+      death_state == "southcarolina" ~ "south carolina",
+      death_state == "newjersey" ~ "new jersey",
+      death_state == "newmexico" ~ "new mexico",
+      death_state == "northdakota" ~ "north dakota",
+      death_state == "northcarolina" ~ "north carolina",
+      death_state == "southdakota" ~ "south dakota",
+      death_state == "westvirginia" ~ "west virginia",
+      death_state == "rhodeisland" ~ "rhode island",
+      TRUE ~ death_state
+    )
+  )
+unique(birthplaces_df$death_state)
+```
+Then, we remove all people who have neither a birth or a death city. 
+```{r}
+birthplaces_df <- birthplaces_df %>% 
+  mutate(
+    deletes = paste(birth_city, death_city)
+  ) %>% 
+  filter(!deletes %in% "NA NA") %>% 
+  select(-deletes)
+head(birthplaces_df)
+```
+We then make sure that the FIPS and ZIP code variables are coded as string variables so that the leading zeroes do not get truncated.  
+```{r}
+birthplaces_df$death_zip <- as.character(birthplaces_df$death_zip)
+birthplaces_df$death_county_fips <- as.character(birthplaces_df$death_county_fips)
+```
+Lastly, we save the file as a csv
+```{r}
+write.csv(birthplaces_df,"birth_death_features.csv",row.names = FALSE)
+```
+
+
