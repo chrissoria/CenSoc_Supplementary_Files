@@ -136,11 +136,11 @@ head(birthplaces_df)
 We then make sure that the FIPS and ZIP code variables are coded as string variables so that the leading zeroes do not get truncated.  
 ```{r}
 birthplaces_df$death_zip <- as.character(birthplaces_df$death_zip)
-birthplaces_df$death_county_fips <- as.character(birthplaces_df$death_county_fips)
+birthplaces_df$death_fips <- as.character(birthplaces_df$death_fips)
 ```
 Lastly, we save the file as a csv
 ```{r}
-write.csv(birthplaces_df,"birth_death_features.csv",row.names = FALSE)
+write.csv(birthplaces_df,"/hdir/0/chrissoria/Birth_Places/BUNMD_Geography_File",row.names = FALSE)
 ```
 
 

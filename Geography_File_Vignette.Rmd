@@ -20,11 +20,6 @@ Below are instructions on how to merge these files and what to look out for. Fir
 bunmd_geography_file <- fread("birth_death_features.csv")
 bunmd <- fread("bunmd_v2.csv", select=c("ssn","byear","dyear","death_age")) 
 ```
-               
-BUNDMD has the best death coverage for people born between 1910 and 1920 who died between the years 1988 and 2005. Here, we will subset the BUNMD dataset to exclude anyone who does not meet this criteria.
-```{r}
-bunmd <- filter(bunmd, byear %in% 1910:1920 & dyear %in% 1988:2005)
-```
 
 Now that we have read in both files, we can start merging them. Since we will be merging based on the Social Security Number, which is unique to each individual, we can use a "left join" where the BUNDMD file will be the left file and the Birth_Death_Features file will be joined to it.
 ```{r}
