@@ -15,23 +15,23 @@ header-includes:
 | Page| Variable            | Label                                        |
 |----:|:--------------------|:---------------------------------------------|
 |  \hyperlink{page.2}{2}    | \hyperlink{page.2}{ssn}                |Social Security Number                        |
-|  \hyperlink{page.3}{3}    | \hyperlink{page.3}{fname}              |City of Birth                                  |
-|  \hyperlink{page.4}{4}    | \hyperlink{page.4}{mname}              |GNIS Code of Birth Place                      | 
-|  \hyperlink{page.5}{5}    | \hyperlink{page.5}{lname}              |County Name of Birth                          |
-|  \hyperlink{page.6}{6}    | \hyperlink{page.6}{sex}                |Census Region of Birth                       |
-|  \hyperlink{page.7}{7}    | \hyperlink{page.7}{race\_first}         |ZIP Code of Death                |
-|  \hyperlink{page.8}{8}    | \hyperlink{page.8}{race\_first\_cyear}   |FIPS code of Death County                |
-|  \hyperlink{page.9}{9}    | \hyperlink{page.9}{race\_first\_cmonth}  |State of Death                        |
-|  \hyperlink{page.10}{10}  | \hyperlink{page.10}{race\_last}         |City of Death                  |
-|  \hyperlink{page.11}{11}  | \hyperlink{page.11}{race\_last\_cyear}   |County of Death                |
-|  \hyperlink{page.12}{12}  | \hyperlink{page.12}{race\_last\_cmonth}  |Country of Death                            |
-|  \hyperlink{page.13}{13}  | \hyperlink{page.13}{race\_change}       |USDA Rural-Urban Continuum Code                |
+|  \hyperlink{page.3}{3}    | \hyperlink{page.3}{birth\_city}              |City of Birth                           |
+|  \hyperlink{page.4}{4}    | \hyperlink{page.4}{birth\_gnis\_code}              |GNIS Code of Birth Place            | 
+|  \hyperlink{page.5}{5}    | \hyperlink{page.5}{birth\_county}              |County Name of Birth                    |
+|  \hyperlink{page.6}{6}    | \hyperlink{page.6}{birth\_region}                |Census Region of Birth                |
+|  \hyperlink{page.7}{7}    | \hyperlink{page.7}{death\_zip}         |ZIP Code of Death                |
+|  \hyperlink{page.8}{8}    | \hyperlink{page.8}{death\_state}   |FIPS code of Death County                |
+|  \hyperlink{page.9}{9}    | \hyperlink{page.9}{death\_state}  |State of Death                        |
+|  \hyperlink{page.10}{10}  | \hyperlink{page.10}{death\_city}         |Primary ZIP City of Death                  |
+|  \hyperlink{page.11}{11}  | \hyperlink{page.11}{death\_county}   |ZIP County of Death                |
+|  \hyperlink{page.12}{12}  | \hyperlink{page.12}{death\_country}  |Country of Death                            |
+|  \hyperlink{page.13}{13}  | \hyperlink{page.13}{death\_region}       |Death Census Region                |
+|  \hyperlink{page.14}{14}  | \hyperlink{page.14}{death\_ruc1993}       |USDA Rural-Urban Continuum Code              |
 
 
-**Summary:**  The Berkeley Unified Numident Mortality Detailed Birthplace Database (N = 29,676,585) contains information about an individual's place of birth, linked using data from Seth Sanders. The dataset is linked to death place characteristics based on the ZIP code of death. However, it does not include information on individuals born in D.C. or U.S. territories.
+**Summary:**  The Berkeley Unified Numident Mortality Detailed Supplementary Geography Variables File (N = 42,878,885) provides information on a person's birth and death locations. This dataset provides details on the death location based on the deceased's ZIP code. It consists of 29,676,585 entries specifying birthplaces at city, county, and state levels, but it excludes data on individuals born in Washington D.C. or U.S. territories. City and county information is derived from Seth Sanders' crosswalk, while state-level data originates from the BUNMD itself.
 
-The dataset includes place-of-birth strings at the city, county, and state levels. The city and county data are sourced from Seth Sanders' crosswalk, while the state-level data comes from the BUNMD. To merge the Berkeley Unified Numident Mortality Crosswalk Database with the BUNMD, one can use an individual's social security number.
-
+To combine the Berkeley Unified Numident Mortality Crosswalk Database with the BUNMD, use the individual's social security number as the linking variable.
 \newpage 
 
 
@@ -41,7 +41,7 @@ library(dplyr)
 library(data.table)
 library(tidyverse)
 
-birthplaces_df <- fread("birth_death_features.csv")
+BUNMD_Geography_File <- fread("BUNMD_Geography_File.csv")
 ```
 
 \newpage 
@@ -52,8 +52,8 @@ birthplaces_df <- fread("birth_death_features.csv")
 
 **Label**: Social Security Number
 
-**Description**: ssn reports a person’s Social Security number, as recorded in the Numident death records.
-Uniquely identifies all records in the dataset.
+*Description*: ssn reports a person’s Social Security number as recorded in the Numident death records.
+This variable uniquely identifies all records in the dataset and can be used to merge onto the BUNMD dataset.
 
 
 \newpage 
@@ -64,7 +64,7 @@ Uniquely identifies all records in the dataset.
 
 **Label**: City of birth
 
-**Description**: bpl_string reports the city of birth recorded in the BUNMD database. This variable is the result of the linkage between the BUNMD and Crosswalk databases. Approximately 94% of individuals in the BUNMD with city of birth information and non-missing feature_id were matched with the crosswalk. 
+*Description*: birth_city reports the city of birth recorded in the BUNMD database. This variable is the result of the linkage between the BUNMD and Crosswalk databases. Approximately 94% of individuals in the BUNMD with city of birth information and non-missing feature_id were matched with the crosswalk (29,676,585). 
 
 \newpage 
 
@@ -73,9 +73,9 @@ Uniquely identifies all records in the dataset.
 \normalsize
 \vspace{12pt}
 
-**Label:** birth_gnis_code; GNIS code
+**Label:** birth_gnis_code
 
-**Description**: birth_gnis_code is a numeric variable that denotes an individuals’ Geographic Names Information System (GNIS) code for their place of birth. The GNIS code maps onto physical locations located in the U.S., including longitude and latitude coordinates and physical feature names. 
+*Description*: birth_gnis_code is a numeric variable that denotes an individuals’ Geographic Names Information System (GNIS) code for their place of birth. The GNIS code maps onto physical locations located in the U.S., including longitude and latitude coordinates and physical feature names. 
 
 For more information on GNIS codes, please see <https://www.usgs.gov/faqs/what-geographic-names-information-system-gnis>.
 
@@ -89,7 +89,7 @@ For more information on GNIS codes, please see <https://www.usgs.gov/faqs/what-g
 
 **Label**: County name
 
-**Description**: birth_county reports the county of birth for an individual as a character string. The accompanying county_code variable reports the person's county of birth as recorded in the Crosswalk database.
+*Description*: birth_county reports the county of birth for an individual as a character string. 
 
 \newpage 
 
@@ -100,18 +100,32 @@ For more information on GNIS codes, please see <https://www.usgs.gov/faqs/what-g
 
 **Label**: Census Region
 
-**Description**:  Region is a categorical variable that categorizes an individual’s place of birth into one of the four Census Regions – Northeast, the Midwest, the South, and the West – based on their state of birth. 
+*Description*:  birth_region is a categorical variable that categorizes an individual’s place of birth into one of the four Census Regions – Northeast, Midwest, South, and West – based on their state of birth. 
 
 For more information on Census Regions, please see <https://www.census.gov/programs-surveys/economic-census/guidance-geographies/levels.html>.
 
 
 ```{r echo = F, message=FALSE, warning=FALSE, fig.pos="H"}
+library(ggplot2)
 
-barplot(table(birthplaces_df$birth_region), main = "Frequency of Values", xlab = "Census Region", ylab = "Frequency", yaxt = "n", 
-        names.arg = names(table(birthplaces_df$birth_region)), ylim = c(0, max(table(birthplaces_df$birth_region)) + 1), 
-        col = "lightblue", border = "white")
-text(x = seq_along(table(birthplaces_df$birth_region)), y = table(birthplaces_df$birth_region)/2 + 0.5, labels = table(birthplaces_df$birth_region), 
-     pos = 1, cex = 0.8, col = "black")
+# Filter out NA values from birth_region column
+birth_region_no_na <- na.omit(BUNMD_Geography_File$birth_region)
+
+# Create plot
+ggplot(data = data.frame(birth_region = birth_region_no_na), aes(x = birth_region)) +
+  geom_bar(fill = "lightblue", color = "white") +
+  ggtitle("Frequency of Values") +
+  xlab("Census Region of Birth") +
+  ylab("Frequency") +
+  scale_y_continuous(limits = c(0, max(table(birth_region_no_na)) + 1), expand = c(0,0), labels = scales::comma) +
+  theme_classic() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1),
+        panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank(),
+        axis.line.x = element_line(color = "black", size = 0.5),
+        axis.line.y = element_line(color = "black", size = 0.5),
+        axis.title = element_text(size = 12),
+        plot.title = element_text(size = 16, face = "bold", hjust = 0.5))
 ```
 
 \newpage 
@@ -120,9 +134,9 @@ text(x = seq_along(table(birthplaces_df$birth_region)), y = table(birthplaces_df
 \normalsize
 \vspace{12pt}
 
-*Label*: Death ZIP Code
+**Label**: Death ZIP Code
 
-*Description*: death_zip is the ZIP code that is recorded at the time of death. It is worth noting that ZIP codes are primarily used for USPS mail delivery purposes, not as geographic units.
+*Description*: death_zip is the ZIP code that is recorded at the time of death in the BUNMD. ZIP codes are primarily used for USPS mail delivery purposes, not as geographic units.
 
 For a more detailed description of ZIP codes, please see: <https://faq.usps.com/s/article/ZIP-Code-The-Basics>.
 
@@ -132,7 +146,7 @@ For a more detailed description of ZIP codes, please see: <https://faq.usps.com/
 \normalsize
 \vspace{12pt}
 
-*Label*: Death County FIPS Code
+**Label**: Death County FIPS Code
 
 *Description*: death_fips, a numeric variable, is the FIPS code for an individual’s county of death as sourced from their ZIP code of death. 
 
@@ -144,14 +158,11 @@ For a more detailed description of FIPS codes, please see: <https://transition.f
 \normalsize
 \vspace{12pt}
 
-*Label*: State of Death
+**Label**: State of Death
 
-*Description*: death_state reports on the state the death ZIP code falls
-into. It's important to note that on rare occasions, ZIP codes will
-cross state lines. You can match state abbreviations, and identify
-military bases abroad at:
-<https://www.ssa.gov/international/coc-docs/states.html>.
+*Description*: death_state reports on the state the death ZIP code falls into. 
 
+For a more detailed description of ZIP codes, please see: <https://faq.usps.com/s/article/ZIP-Code-The-Basics>.
 
 \newpage 
 
@@ -159,12 +170,11 @@ military bases abroad at:
 \normalsize
 \vspace{12pt}
 
-*Label*: City of Death
+**Label**: City of Death
 
-*Description*: death_city reports a ZIP code's primary city
-according to the USPS (the city of primary USPS office for the ZIP
-code). It's important to note that, in reality, ZIP codes will
-frequently cross city lines. 
+*Description*: death_city reports a ZIP code's primary city according to the USPS (the city of primary USPS office for the ZIP code). In the case that a ZIP code crosses a city line, the city listed will be where the primary post office for that ZIP code is located.  
+
+For a more detailed description of ZIP codes, please see: <https://faq.usps.com/s/article/ZIP-Code-The-Basics>.
 
 \newpage 
 
@@ -172,12 +182,11 @@ frequently cross city lines.
 \normalsize
 \vspace{12pt}
 
-*Label*: County of Death
+**Label**: County of Death
 
 *Description*: death_county reports a ZIP code's county
 according to the USPS (the city of primary USPS office for the ZIP
-code). It's important to note that, in reality, ZIP codes will
-sometimes cross county lines. 
+code). 
 
 \newpage 
 
@@ -185,10 +194,28 @@ sometimes cross county lines.
 \normalsize
 \vspace{12pt}
 
-*Label*: Country of Death
+**Label**: Country of Death
 
-*Description*: death_country reports on the country in which the ZIP code
-falls. Although, most ZIP codes fall within US borders, countries with
-military bases on US territories will also have ZIP codes. 
+*Description*: death_country indicates the country where the reported ZIP code is located. While the majority of these ZIP codes are within the United States, countries that host U.S. military bases on their territories may also have ZIP codes associated with them.
 
 \newpage 
+
+**\huge death_region **
+\normalsize
+\vspace{12pt}
+
+**Label**: Census Region of Death
+
+*Description*: death_region is a categorical variable that categorizes an individual’s place of death, based on their ZIP code and state of death, into one of the four Census Regions – Northeast, the Midwest, the South, and the West. 
+
+\newpage 
+
+**\huge death_ruc1993 **
+\normalsize
+\vspace{12pt}
+
+**Label**: USDA Rural-Urban Continuum Code
+
+*Description*: death_ruc1993 is sourced from the United States Department of Agriculture (USDA) Urban-Rural Continuum Codes, which are a classification system developed to categorize U.S. counties based on their degree of urbanization and adjacency to metropolitan areas. The system consists of ten codes, ranging from 0 to 9, where lower codes represent more urbanized counties and higher codes represent more rural areas.
+
+For more information: <https://www.ers.usda.gov/data-products/rural-urban-continuum-codes.aspx>
