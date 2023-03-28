@@ -10,28 +10,28 @@ header-includes:
 ---
 [^updated]: Last updated: `r format(Sys.time(), '%d %B, %Y')`
 
-
+\captionsetup[table]{labelformat=empty}
 
 | Page| Variable            | Label                                        |
 |----:|:--------------------|:---------------------------------------------|
 |  \hyperlink{page.2}{2}    | \hyperlink{page.2}{ssn}                |Social Security Number                        |
-|  \hyperlink{page.3}{3}    | \hyperlink{page.3}{birth\_city}              |City of Birth                           |
-|  \hyperlink{page.4}{4}    | \hyperlink{page.4}{birth\_gnis\_code}              |GNIS Code of Birth Place            | 
-|  \hyperlink{page.5}{5}    | \hyperlink{page.5}{birth\_county}              |County Name of Birth                    |
+|  \hyperlink{page.3}{3}    | \hyperlink{page.3}{birth\_gnis\_code}              |GNIS Code of Birth Place          |
+|  \hyperlink{page.4}{4}    | \hyperlink{page.4}{birth\_city}              |City of Birth            | 
+|  \hyperlink{page.5}{5}    | \hyperlink{page.5}{birth\_county}              |County of Birth                    |
 |  \hyperlink{page.6}{6}    | \hyperlink{page.6}{birth\_region}                |Census Region of Birth                |
 |  \hyperlink{page.7}{7}    | \hyperlink{page.7}{death\_zip}         |ZIP Code of Death                |
 |  \hyperlink{page.8}{8}    | \hyperlink{page.8}{death\_state}   |FIPS code of Death County                |
 |  \hyperlink{page.9}{9}    | \hyperlink{page.9}{death\_state}  |State of Death                        |
 |  \hyperlink{page.10}{10}  | \hyperlink{page.10}{death\_city}         |Primary ZIP City of Death                  |
-|  \hyperlink{page.11}{11}  | \hyperlink{page.11}{death\_county}   |ZIP County of Death                |
+|  \hyperlink{page.11}{11}  | \hyperlink{page.11}{death\_county}   |County of Death                |
 |  \hyperlink{page.12}{12}  | \hyperlink{page.12}{death\_country}  |Country of Death                            |
-|  \hyperlink{page.13}{13}  | \hyperlink{page.13}{death\_region}       |Death Census Region                |
+|  \hyperlink{page.13}{13}  | \hyperlink{page.13}{death\_region}       |Census Region of Death               |
 |  \hyperlink{page.14}{14}  | \hyperlink{page.14}{death\_ruc1993}       |USDA Rural-Urban Continuum Code              |
 
 
 **Summary:**  The Berkeley Unified Numident Mortality Detailed Supplementary Geography Variables File (N = 42,878,885) provides information on a person's birth and death locations. This dataset provides details on the death location based on the deceased's ZIP code. It consists of 29,676,585 entries specifying birthplaces at city, county, and state levels, but it excludes data on individuals born in Washington D.C. or U.S. territories. City and county information is derived from Seth Sanders' crosswalk, while state-level data originates from the BUNMD itself.
 
-To combine the Berkeley Unified Numident Mortality Crosswalk Database with the BUNMD, use the individual's social security number as the linking variable.
+To combine the Supplementary Geography Variables File with the BUNMD, use the individual's social security number as the linking variable.
 \newpage 
 
 
@@ -40,6 +40,8 @@ To combine the Berkeley Unified Numident Mortality Crosswalk Database with the B
 library(dplyr)
 library(data.table)
 library(tidyverse)
+library(knitr)
+library(forcats)
 
 BUNMD_Geography_File <- fread("BUNMD_Geography_File.csv")
 ```
@@ -52,8 +54,21 @@ BUNMD_Geography_File <- fread("BUNMD_Geography_File.csv")
 
 **Label**: Social Security Number
 
-*Description*: ssn reports a person’s Social Security number as recorded in the Numident death records.
+**Description**: ssn reports a person’s Social Security number as recorded in the Numident death records.
 This variable uniquely identifies all records in the dataset and can be used to merge onto the BUNMD dataset.
+
+
+\newpage 
+
+**\huge birth_gnis_code **
+\normalsize
+\vspace{12pt}
+
+**Label:** GNIS Code of Birth Place
+
+**Description**: birth_gnis_code is a numeric variable that denotes an individuals’ Geographic Names Information System (GNIS) code for their place of birth. The GNIS code maps onto physical locations located in the U.S., including longitude and latitude coordinates and physical feature names. 
+
+For more information on GNIS codes, please see <https://www.usgs.gov/faqs/what-geographic-names-information-system-gnis>.
 
 
 \newpage 
@@ -64,20 +79,11 @@ This variable uniquely identifies all records in the dataset and can be used to 
 
 **Label**: City of birth
 
-*Description*: birth_city reports the city of birth recorded in the BUNMD database. This variable is the result of the linkage between the BUNMD and Crosswalk databases. Approximately 94% of individuals in the BUNMD with city of birth information and non-missing feature_id were matched with the crosswalk (29,676,585). 
+**Description**: birth_city reports the city of birth recorded in the BUNMD database. This variable is the result of the linkage between the BUNMD and GNIS crosswalk dataset. Approximately 94% of individuals in the BUNMD with city of birth information were matched with the crosswalk (29,676,585). 
 
-\newpage 
+To construct the “place of birth” variables, we used a crosswalk originally developed for this paper: 
 
-
-**\huge birth_gnis_code **
-\normalsize
-\vspace{12pt}
-
-**Label:** birth_gnis_code
-
-*Description*: birth_gnis_code is a numeric variable that denotes an individuals’ Geographic Names Information System (GNIS) code for their place of birth. The GNIS code maps onto physical locations located in the U.S., including longitude and latitude coordinates and physical feature names. 
-
-For more information on GNIS codes, please see <https://www.usgs.gov/faqs/what-geographic-names-information-system-gnis>.
+Black, Dan A., Seth G. Sanders, Evan J. Taylor, and Lowell J. Taylor. 2015. “The Impact of the Great Migration on Mortality of African Americans: Evidence from the Deep South.” American Economic Review 105(2):477–503. doi: 10.1257/aer.20120642.
 
 
 \newpage 
@@ -87,9 +93,9 @@ For more information on GNIS codes, please see <https://www.usgs.gov/faqs/what-g
 \normalsize
 \vspace{12pt}
 
-**Label**: County name
+**Label**: County of Birth
 
-*Description*: birth_county reports the county of birth for an individual as a character string. 
+**Description**: birth_county reports the county of birth for an individual as a character string. 
 
 \newpage 
 
@@ -98,34 +104,25 @@ For more information on GNIS codes, please see <https://www.usgs.gov/faqs/what-g
 \normalsize
 \vspace{12pt}
 
-**Label**: Census Region
+**Label**: Census Region of Birth
 
-*Description*:  birth_region is a categorical variable that categorizes an individual’s place of birth into one of the four Census Regions – Northeast, Midwest, South, and West – based on their state of birth. 
+**Description**:  birth_region is a categorical variable that categorizes an individual’s place of birth into one of the four Census Regions – Northeast, Midwest, South, and West – based on their state of birth. 
 
 For more information on Census Regions, please see <https://www.census.gov/programs-surveys/economic-census/guidance-geographies/levels.html>.
 
 
-```{r echo = F, message=FALSE, warning=FALSE, fig.pos="H"}
-library(ggplot2)
+```{r echo = F, message=FALSE, warning=FALSE, fig.pos="H", results='asis'}
 
-# Filter out NA values from birth_region column
-birth_region_no_na <- na.omit(BUNMD_Geography_File$birth_region)
+birthregion_table <- table(BUNMD_Geography_File$birth_region, useNA = "always")
 
-# Create plot
-ggplot(data = data.frame(birth_region = birth_region_no_na), aes(x = birth_region)) +
-  geom_bar(fill = "lightblue", color = "white") +
-  ggtitle("Frequency of Values") +
-  xlab("Census Region of Birth") +
-  ylab("Frequency") +
-  scale_y_continuous(limits = c(0, max(table(birth_region_no_na)) + 1), expand = c(0,0), labels = scales::comma) +
-  theme_classic() +
-  theme(axis.text.x = element_text(angle = 45, hjust = 1),
-        panel.grid.major = element_blank(),
-        panel.grid.minor = element_blank(),
-        axis.line.x = element_line(color = "black", size = 0.5),
-        axis.line.y = element_line(color = "black", size = 0.5),
-        axis.title = element_text(size = 12),
-        plot.title = element_text(size = 16, face = "bold", hjust = 0.5))
+birthregion_table <- as.data.frame(birthregion_table)
+
+birthregion_table$Freq_perc <- round((birthregion_table$Freq/sum(birthregion_table$Freq))*100, digits = 1)
+
+kable(birthregion_table, 
+      caption = "Births by Census Region",
+      col.names = c("Region", "n","freq %"),
+      align = c("l", "r","l"))
 ```
 
 \newpage 
@@ -136,7 +133,7 @@ ggplot(data = data.frame(birth_region = birth_region_no_na), aes(x = birth_regio
 
 **Label**: Death ZIP Code
 
-*Description*: death_zip is the ZIP code that is recorded at the time of death in the BUNMD. ZIP codes are primarily used for USPS mail delivery purposes, not as geographic units.
+**Description**: death_zip is the ZIP code that is recorded at the time of death in the BUNMD. ZIP codes are primarily used for USPS mail delivery purposes, not as geographic units.
 
 For a more detailed description of ZIP codes, please see: <https://faq.usps.com/s/article/ZIP-Code-The-Basics>.
 
@@ -148,7 +145,7 @@ For a more detailed description of ZIP codes, please see: <https://faq.usps.com/
 
 **Label**: Death County FIPS Code
 
-*Description*: death_fips, a numeric variable, is the FIPS code for an individual’s county of death as sourced from their ZIP code of death. 
+**Description**: death_fips, a numeric variable, is the FIPS code for an individual’s county of death as sourced from their ZIP code of death. 
 
 For a more detailed description of FIPS codes, please see: <https://transition.fcc.gov/oet/info/maps/census/fips/fips.txt#:~:text=FIPS%20codes%20are%20numbers%20which,to%20which%20the%20county%20belongs>.
 
@@ -160,7 +157,7 @@ For a more detailed description of FIPS codes, please see: <https://transition.f
 
 **Label**: State of Death
 
-*Description*: death_state reports on the state the death ZIP code falls into. 
+**Description**: death_state reports the state the death ZIP code falls into. 
 
 For a more detailed description of ZIP codes, please see: <https://faq.usps.com/s/article/ZIP-Code-The-Basics>.
 
@@ -172,7 +169,7 @@ For a more detailed description of ZIP codes, please see: <https://faq.usps.com/
 
 **Label**: City of Death
 
-*Description*: death_city reports a ZIP code's primary city according to the USPS (the city of primary USPS office for the ZIP code). In the case that a ZIP code crosses a city line, the city listed will be where the primary post office for that ZIP code is located.  
+**Description**: death_city reports a ZIP code's primary city according to the USPS. In the case that a ZIP code crosses a city line, the city listed will be where the primary post office for that ZIP code is located.  
 
 For a more detailed description of ZIP codes, please see: <https://faq.usps.com/s/article/ZIP-Code-The-Basics>.
 
@@ -184,9 +181,7 @@ For a more detailed description of ZIP codes, please see: <https://faq.usps.com/
 
 **Label**: County of Death
 
-*Description*: death_county reports a ZIP code's county
-according to the USPS (the city of primary USPS office for the ZIP
-code). 
+**Description**: death_county reports the county that the individual's ZIP code falls into, according to the USPS. 
 
 \newpage 
 
@@ -196,7 +191,7 @@ code).
 
 **Label**: Country of Death
 
-*Description*: death_country indicates the country where the reported ZIP code is located. While the majority of these ZIP codes are within the United States, countries that host U.S. military bases on their territories may also have ZIP codes associated with them.
+**Description**: death_country indicates the country where the reported ZIP code is located. While the majority of these ZIP codes are within the United States, countries that host U.S. military bases on their territories may also have ZIP codes associated with them.
 
 \newpage 
 
@@ -206,7 +201,21 @@ code).
 
 **Label**: Census Region of Death
 
-*Description*: death_region is a categorical variable that categorizes an individual’s place of death, based on their ZIP code and state of death, into one of the four Census Regions – Northeast, the Midwest, the South, and the West. 
+**Description**: death_region is a categorical variable that categorizes an individual’s place of death, based on their ZIP code and state of death, into one of the four Census Regions – Northeast, the Midwest, the South, and the West. 
+
+```{r echo = F, results='asis'}
+deathregion_table <- table(BUNMD_Geography_File$death_region, useNA = "always")
+
+deathregion_table <- as.data.frame(deathregion_table)
+
+deathregion_table$Freq_perc <- round((deathregion_table$Freq/sum(deathregion_table$Freq))*100, digits = 1)
+
+kable(deathregion_table, 
+      caption = "Deaths by Census Region",
+      col.names = c("region", "n","freq %"),
+      align = c("l", "r","l"))
+```
+
 
 \newpage 
 
@@ -216,6 +225,28 @@ code).
 
 **Label**: USDA Rural-Urban Continuum Code
 
-*Description*: death_ruc1993 is sourced from the United States Department of Agriculture (USDA) Urban-Rural Continuum Codes, which are a classification system developed to categorize U.S. counties based on their degree of urbanization and adjacency to metropolitan areas. The system consists of ten codes, ranging from 0 to 9, where lower codes represent more urbanized counties and higher codes represent more rural areas.
+**Description**: death_ruc1993 is sourced from the United States Department of Agriculture (USDA) Urban-Rural Continuum Codes, which are a classification system developed to categorize U.S. counties based on their degree of urbanization and adjacency to metropolitan areas. The system consists of ten codes, ranging from 0 to 9, where lower codes represent more urbanized counties and higher codes represent more rural areas.
 
 For more information: <https://www.ers.usda.gov/data-products/rural-urban-continuum-codes.aspx>
+
+```{r echo = F, results='hide', message=FALSE, warning=FALSE, results='asis'}
+ruc1993_table <- table(BUNMD_Geography_File$death_ruc1993, useNA = "always")
+
+ruc1993_table <- as.data.frame(ruc1993_table)
+
+ruc1993_table <- ruc1993_table %>% 
+  mutate(Rural_Urban_Label = factor(Var1, levels = c("0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "NA"),
+                                    labels = c("Central counties of metro areas of 1 million population or more", "Fringe counties of metro areas of 1 million population or more", "Counties in metro areas of 250,000 to 1 million population", "Counties in metro areas of fewer than 250,000 population", "Urban population of 20,000 or more, adjacent to a metro area", "Urban population of 20,000 or more, not adjacent to a metro area","Urban population of 2,500 to 19,999, adjacent to a metro area","Urban population of 2,500 to 19,999, not adjacent to a metro area","Rural or fewer than 2,500 urban population, adjacent to a metro area","Rural or fewer than 2,500 urban population, not adjacent to a metro area", "NA")))
+
+ruc1993_table$Freq_perc <- round((ruc1993_table$Freq/sum(ruc1993_table$Freq))*100,digits = 1)
+
+ruc1993_table <- ruc1993_table[, c(1, 3, 2, 4)]
+```
+```{r echo = F, results='asis'} 
+# Format the table with kable
+kable(ruc1993_table, 
+      caption = "Rural-Urban Deaths",
+      col.names = c("code", "description", "n","freq %"),
+      align = c("l", "r", "l","l"))
+```
+
