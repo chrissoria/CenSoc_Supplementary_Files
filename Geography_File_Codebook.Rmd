@@ -22,16 +22,19 @@ header-includes:
 |  \hyperlink{page.7}{7}    | \hyperlink{page.7}{death\_zip}         |ZIP Code of Death                |
 |  \hyperlink{page.8}{8}    | \hyperlink{page.8}{death\_state}   |FIPS code of Death County                |
 |  \hyperlink{page.9}{9}    | \hyperlink{page.9}{death\_state}  |State of Death                        |
-|  \hyperlink{page.10}{10}  | \hyperlink{page.10}{death\_city}         |Primary ZIP City of Death                  |
+|  \hyperlink{page.10}{10}  | \hyperlink{page.10}{death\_city}         |City of Death                  |
 |  \hyperlink{page.11}{11}  | \hyperlink{page.11}{death\_county}   |County of Death                |
 |  \hyperlink{page.12}{12}  | \hyperlink{page.12}{death\_country}  |Country of Death                            |
 |  \hyperlink{page.13}{13}  | \hyperlink{page.13}{death\_region}       |Census Region of Death               |
 |  \hyperlink{page.14}{14}  | \hyperlink{page.14}{death\_ruc1993}       |USDA Rural-Urban Continuum Code              |
 
 
-**Summary:**  The Berkeley Unified Numident Mortality Detailed Supplementary Geography Variables File (N = 42,878,885) provides information on a person's birth and death locations. This dataset provides details on the death location based on the deceased's ZIP code. It consists of 29,676,585 entries specifying birthplaces at city, county, and state levels, but it excludes data on individuals born in Washington D.C. or U.S. territories. City and county information is derived from Seth Sanders' crosswalk, while state-level data originates from the BUNMD itself.
+**Summary:**  The Berkeley Unified Numident Mortality Detailed Supplementary Geography Variables File (N = 42,878,885) provides information on a person's birth and death locations. This dataset provides details on the death location based on the deceased's ZIP code. It consists of 29,676,585 entries specifying birthplaces at city, county, and state levels, but it excludes data on individuals born in Washington D.C. or U.S. territories. To combine the Supplementary Geography Variables File with the BUNMD, use the individual's social security number as the linking variable.
 
-To combine the Supplementary Geography Variables File with the BUNMD, use the individual's social security number as the linking variable.
+To construct the “place of birth” variables, we used a crosswalk originally developed for this paper: 
+
+Black, Dan A., Seth G. Sanders, Evan J. Taylor, and Lowell J. Taylor. 2015. “The Impact of the Great Migration on Mortality of African Americans: Evidence from the Deep South.” American Economic Review 105(2):477–503. doi: 10.1257/aer.20120642.
+
 \newpage 
 
 
