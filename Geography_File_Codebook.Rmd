@@ -12,31 +12,34 @@ header-includes:
 
 \captionsetup[table]{labelformat=empty}
 
-| Page| Variable            | Label                                        |
-|----:|:--------------------|:---------------------------------------------|
-|  \hyperlink{page.2}{2}    | \hyperlink{page.2}{ssn}                |Social Security Number                        |
-|  \hyperlink{page.3}{3}    | \hyperlink{page.3}{birth\_gnis\_code}              |GNIS Code of Birth Place          |
-|  \hyperlink{page.4}{4}    | \hyperlink{page.4}{birth\_city}              |City of Birth            | 
-|  \hyperlink{page.5}{5}    | \hyperlink{page.5}{birth\_county}              |County of Birth                    |
-|  \hyperlink{page.6}{6}    | \hyperlink{page.6}{birth\_region}                |Census Region of Birth                |
-|  \hyperlink{page.7}{7}    | \hyperlink{page.7}{death\_zip}         |ZIP Code of Death                |
-|  \hyperlink{page.8}{8}    | \hyperlink{page.8}{death\_state}   |FIPS code of Death County                |
-|  \hyperlink{page.9}{9}    | \hyperlink{page.9}{death\_state}  |State of Death                        |
-|  \hyperlink{page.10}{10}  | \hyperlink{page.10}{death\_city}         |City of Death                  |
-|  \hyperlink{page.11}{11}  | \hyperlink{page.11}{death\_county}   |County of Death                |
-|  \hyperlink{page.12}{12}  | \hyperlink{page.12}{death\_country}  |Country of Death                            |
-|  \hyperlink{page.13}{13}  | \hyperlink{page.13}{death\_region}       |Census Region of Death               |
-|  \hyperlink{page.14}{14}  | \hyperlink{page.14}{death\_ruc1993}       |USDA Rural-Urban Continuum Code              |
-
+| Page                        | Variable            | Label                                        |
+|-----------------------------|:--------------------|:---------------------------------------------|
+| \hyperlink{page.2}{2}       | \hyperlink{page.2}{ssn}                |Social Security Number                        |
+| \hyperlink{page.3}{3}       | \hyperlink{page.3}{birth\_gnis\_code}              |GNIS Code of Birth Place          |
+| \hyperlink{page.4}{4}       | \hyperlink{page.4}{birth\_city}              |City of Birth            | 
+| \hyperlink{page.5}{5}       | \hyperlink{page.5}{birth\_city\_uncleaned}           |City of Birth Uncleaned String|
+| \hyperlink{page.6}{6}       | \hyperlink{page.6}{birth\_county}              |County of Birth                    |
+| \hyperlink{page.7}{7}       | \hyperlink{page.7}{birth\_region}                |Census Region of Birth            |
+| \hyperlink{page.8}{8}       | \hyperlink{page.8}{death\_zip}         |ZIP Code of Death                |
+| \hyperlink{page.9}{9}       | \hyperlink{page.9}{death\_state}   |FIPS code of Death County                |
+| \hyperlink{page.10}{10}     | \hyperlink{page.10}{death\_state}  |State of Death                        |
+| \hyperlink{page.11}{11}     | \hyperlink{page.11}{death\_city}         |City of Death                  |
+| \hyperlink{page.12}{12}     | \hyperlink{page.12}{death\_county}   |County of Death                |
+| \hyperlink{page.13}{13}     | \hyperlink{page.13}{death\_country}  |Country of Death                            |
+| \hyperlink{page.14}{14}     | \hyperlink{page.14}{death\_region}       |Census Region of Death               |
+| \hyperlink{page.15}{15}     | \hyperlink{page.15}{death\_ruc1993}       |USDA Rural-Urban Continuum Code              |
 
 **Summary:**  The Berkeley Unified Numident Mortality Detailed Supplementary Geography Variables File (N = 42,878,885) provides information on a person's birth and death locations. This dataset provides details on the death location based on the deceased's ZIP code. It consists of 29,676,585 entries specifying birthplaces at city, county, and state levels, but it excludes data on individuals born in Washington D.C. or U.S. territories. To combine the Supplementary Geography Variables File with the BUNMD, use the individual's social security number as the linking variable.
 
-To construct the “place of birth” variables, we used a crosswalk originally developed for this paper: 
+
+
+**Methodology:**"Place of death" variables were obtained by merging the death ZIP variable with a comprehensive dataset of all US zip codes obtained from the United States Postal Service (USPS) <https://postalpro.usps.com/ZIP_Locale_Detail>. For ZIP codes that have been decommissioned, we pulled from a dataset produced by UnitedStatesZipCodes.org. Once state and county of death were obtained, we were able to match this information to US Census regions and county Federal Information Processing System (FIPS) Codes. 
+
+The BUNMD dataset provides uncleaned birthplace strings, which often contain misspellings and unrecognizable values. To create more accurate and readable "place of birth" variables, we cleaned these strings and matched them against a Geographic Names Information System (GNIS) crosswalk. The crosswalk used was initially developed for the following research paper:
 
 Black, Dan A., Seth G. Sanders, Evan J. Taylor, and Lowell J. Taylor. 2015. “The Impact of the Great Migration on Mortality of African Americans: Evidence from the Deep South.” American Economic Review 105(2):477–503. doi: 10.1257/aer.20120642.
 
 \newpage 
-
 
 
 ```{r echo = F, results='hide', message=FALSE, warning=FALSE}
@@ -88,6 +91,15 @@ To construct the “place of birth” variables, we used a crosswalk originally 
 
 Black, Dan A., Seth G. Sanders, Evan J. Taylor, and Lowell J. Taylor. 2015. “The Impact of the Great Migration on Mortality of African Americans: Evidence from the Deep South.” American Economic Review 105(2):477–503. doi: 10.1257/aer.20120642.
 
+\newpage 
+
+**\huge birth_city_uncleaned **
+\normalsize
+\vspace{12pt}
+
+**Label**: City of birth Uncleaned String
+
+**Description**: birth_city reports the city of birth recorded in the BUNMD database. This variable is uncleaned and unprocessed. As a result, it contains string values that could not be matched to actual city names (34,794,580) using the crosswalk mentioned above. 
 
 \newpage 
 
